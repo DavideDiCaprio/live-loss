@@ -13,3 +13,10 @@ curl https://start.spring.io/starter.zip \
   -d packageName=com.liveloss.app \
   -d javaVersion=17 \
   -o liveloss.zip && unzip liveloss.zip && rm liveloss.zip
+
+Install Java:
+
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+sdk install java 17.0.7-tem
+sdk default java 17.0.7-tem
