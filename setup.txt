@@ -1,0 +1,15 @@
+This project was generated using Spring Initializr with the following command:
+
+curl https://start.spring.io/starter.zip \
+  -d dependencies=web,data-jpa,h2,thymeleaf,devtools \
+  -d type=maven-project \
+  -d language=java \
+  -d bootVersion=3.4.5 \
+  -d baseDir=liveloss \
+  -d groupId=com.liveloss \
+  -d artifactId=liveloss-app \
+  -d name=LiveLoss \
+  -d description="LiveLoss Gambling App - Simple Start" \
+  -d packageName=com.liveloss.app \
+  -d javaVersion=17 \
+  -o liveloss.zip && unzip liveloss.zip && rm liveloss.zip
