@@ -24,10 +24,8 @@ async def get_test_user_data(request: Request):
     Endpoint to get the test user's data and the list of games.
     Stats are randomized on each request.
     """
-    # Access the user created in app/main.py
+
     user: User = request.app.state.test_user
-    
-    # Randomize stats for the response
     user.credit = random.randint(50, 500)
     user.gambling_losses = random.randint(100, 1000)
 

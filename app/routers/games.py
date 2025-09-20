@@ -7,7 +7,6 @@ from app.models.game import GameResult, Figure
 
 router = APIRouter()
 
-# Possible figures and their bonus ranges
 POSSIBLE_FIGURES = {
     "Cherry": (5, 15),
     "Lemon": (10, 25),
@@ -38,7 +37,6 @@ async def play_get_bonus(request: Request):
         selected_figures.append(Figure(name=figure_name, bonus=bonus))
         total_bonus += bonus
 
-    # Update user's credit
     user.credit += total_bonus
     
     return GameResult(
