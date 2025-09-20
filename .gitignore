@@ -1,0 +1,29 @@
+# .gitignore
+
+# Environment variables
+.env
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# Database files
+*.db
+*.sqlite3
+
+# Test artifacts
+.pytest_cache/
+test.db
+
+# IDE specific files
+.idea/
+.vscode/
