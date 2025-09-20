@@ -11,9 +11,59 @@
         <h1>Hello User!</h1>
         <p>Welcome to your FastAPI application.</p>
         <div class="actions">
-            <button>Login</button>
-            <button>Register</button>
+            <button disabled>Login</button>
+            <button disabled>Register</button>
+            <button id="test-user-btn">Test User</button>
+        </div>
+
+        <!-- New section for user stats -->
+        <div id="user-stats" class="hidden">
+            <h2 id="user-name"></h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span>Credit</span>
+                    <strong id="user-credit"></strong>
+                </div>
+                <div class="stat-item">
+                    <span>Gambling Losses</span>
+                    <strong id="user-losses"></strong>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-list" class="hidden">
+            <h2>Available Games</h2>
+            <ul>
+                <!-- Games will be loaded here -->
+            </ul>
         </div>
     </div>
+    <script>
+        document.getElementById('test-user-btn').addEventListener('click', () => {
+            fetch('/test-user-data')
+                .then(response => response.json())
+                .then(data => {
+                    const stats = data.user_stats;
+                    const games = data.games;
+
+                    // Populate user stats
+                    document.getElementById('user-name').textContent = `Stats for ${stats.name}`;
+                    document.getElementById('user-credit').textContent = `$${stats.credit}`;
+                    document.getElementById('user-losses').textContent = `$${stats.gambling_losses}`;
+                    document.getElementById('user-stats').classList.remove('hidden');
+
+                    // Populate game list
+                    const gameList = document.getElementById('game-list');
+                    const ul = gameList.querySelector('ul');
+                    ul.innerHTML = ''; // Clear previous list
+                    games.forEach(game => {
+                        const li = document.createElement('li');
+                        li.textContent = game;
+                        ul.appendChild(li);
+                    });
+                    gameList.classList.remove('hidden');
+                });
+        });
+    </script>
 </body>
 </html>

@@ -14,9 +14,9 @@ body {
     padding: 40px 60px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-width: 500px; 
-    width: 90%; 
-    animation: fadeIn 0.5s ease-in-out; 
+    max-width: 500px;
+    width: 90%;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -36,6 +36,13 @@ h1 {
     margin-bottom: 10px;
 }
 
+h2 {
+    color: #444;
+    margin-top: 30px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
 p {
     color: #666;
     font-size: 1.2em;
@@ -47,15 +54,72 @@ p {
     color: white;
     border: none;
     padding: 15px 30px;
-    margin: 0 10px;
+    margin: 10px 5px;
     border-radius: 8px;
     font-size: 1em;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease; 
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .actions button:hover {
     background-color: #0056b3;
-    transform: scale(1.05); 
+    transform: scale(1.05);
 }
 
+.actions button:disabled {
+    background-color: #cccccc;
+    color: #666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.hidden {
+    display: none;
+}
+
+/* New Styles for Stats */
+#user-stats {
+    margin-top: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.stat-item {
+    background-color: #fafafa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eaeaea;
+}
+
+.stat-item span {
+    display: block;
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.stat-item strong {
+    font-size: 1.4em;
+    color: #333;
+}
+
+/* Styles for Game List */
+#game-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+#game-list li {
+    background-color: #f0f0f0;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 5px;
+    color: #888;
+    cursor: not-allowed;
+    font-weight: 500;
+}
