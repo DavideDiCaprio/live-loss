@@ -9,3 +9,6 @@ pydantic          # Used by FastAPI for data validation and defining data models
 jinja2            # The templating engine used to render HTML pages from the 'templates' folder.
 
 passlib[bcrypt]   # A library for securely hashing passwords.
+
+pytest            # for testing
+httpx             # test requests
