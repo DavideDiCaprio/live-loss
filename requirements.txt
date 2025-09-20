@@ -1,7 +1,11 @@
-fastapi
-uvicorn[standard]
-sqlalchemy
-pydantic
-passlib[bcrypt]
-aiosqlite
-jinja2
+fastapi           # The main web framework used to build the API.
+uvicorn[standard] # The high-performance ASGI server that runs the FastAPI application.
+
+sqlalchemy        # The SQL toolkit and Object-Relational Mapper (ORM) for database communication.
+aiosqlite         # The driver that allows SQLAlchemy to connect to the SQLite database.
+alembic           # The database migration tool, used to manage changes to the database schema.
+
+pydantic          # Used by FastAPI for data validation and defining data models (schemas).
+jinja2            # The templating engine used to render HTML pages from the 'templates' folder.
+
+passlib[bcrypt]   # A library for securely hashing passwords.
