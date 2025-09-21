@@ -3,19 +3,17 @@ from sqlalchemy.orm import Session
 
 from .. import crud
 from ..models import user as user_schema
-from ..database.database import SessionLocal, engine
+from ..database.database import engine 
 from ..database import models
+from ..database.dependencies import get_db
 
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+models.Base.metadata.create_all(bind=engine)
+
+router = APIRouter()
 
 @router.post("/users/", response_model=user_schema.User)
 def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):
