@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    /* Set the output directory for compiled .js files */
+    "outDir": "../app/static/js",
+
+    /* Set the root directory for your source .ts files */
+    "rootDir": "./src",
+    
+    /* Standard modern TS options */
+    "target": "es6",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true
+  },
+  /* Tell TS to only look for files inside your src folder */
+  "include": [
+    "./src/**/*"
+  ]
+}
