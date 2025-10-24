@@ -1,12 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import os
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 
 from .routers import feel_lucky_game, users 
-from .database import engine, Base, DATABASE_URL, AsyncSessionLocal
-from . import init_db 
+from .database import engine, Base, DATABASE_URL, AsyncSessionLocal, get_db
+from . import init_db, crud 
 
 
 templates = Jinja2Templates(directory="app/templates")
@@ -45,8 +47,18 @@ app.include_router(feel_lucky_game.router)
 app.include_router(users.router) 
 
 @app.get("/")
-async def read_root(request: Request):
+async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Welcome endpoint that renders an HTML page. 
+    Now also fetches all users for the leaderboard.
     """
-    return templates.TemplateResponse("index.html", {"request": request})
+    # Fetch all users (setting a high limit)
+    users = await crud.get_users(db, skip=0, limit=1000)
+    
+    # Sort users by balance, descending
+    sorted_users = sorted(users, key=lambda user: user.balance, reverse=True)
+    
+    return templates.TemplateResponse(
+        "index.html", 
+        {"request": request, "users": sorted_users}
+    )

@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional
 from .models import UserType 
+import re
 
 # --- User Schemas ---
 
@@ -12,7 +13,18 @@ class UserBase(BaseModel):
     age: Optional[int] = Field(None, ge=18) 
 
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(..., min_length=8)
+
+    @validator('password')
+    def validate_password(cls, v):
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Password must contain an uppercase letter')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Password must contain a lowercase letter')
+        if not re.search(r'[0-9]', v):
+            raise ValueError('Password must contain a number')
+        return v
+    
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None

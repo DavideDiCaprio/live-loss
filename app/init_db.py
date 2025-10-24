@@ -18,7 +18,7 @@ async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession]
         for i in range(num_users):
             email = fake.unique.email()
             nickname = fake.unique.user_name()
-            password = "password123" # Default password for all
+            password = "Password123" 
             
             user_in = schemas.UserCreate(
                 email=email,

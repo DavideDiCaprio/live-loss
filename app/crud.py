@@ -2,12 +2,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
 from typing import List, Optional
-
 from . import models, schemas
+from .security import get_password_hash
 
-
+'''
 def get_password_hash(password: str):
     return f"hashed_{password}" 
+'''
 
 # --- CREATE ---
 async def create_user(db: AsyncSession, user: schemas.UserCreate) -> models.User:

@@ -2,12 +2,10 @@ import enum
 from sqlalchemy import Column, Integer, String, Boolean, Float, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
-import strawberry 
 
 from .database import Base 
 
 # Define an Enum for UserType
-@strawberry.enum
 class UserType(str, enum.Enum):
     NORMAL = "Normal"
     PREMIUM = "Premium"
