@@ -1,5 +1,23 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
-jinja2  
+
+fastapi             # The main web framework for building the API
+uvicorn[standard]   # The ASGI server to run the FastAPI application
+
+
+sqlalchemy[asyncio] # The Object Relational Mapper (ORM) for database interactions, with asyncio support
+aiosqlite           # Asynchronous driver for SQLite (used in your DATABASE_URL)
+
+
+jinja2              # Used for rendering HTML templates (like your index.html)
+
+
+pytest              # A framework for writing and running tests
+pytest-asyncio      # Plugin to handle async functions in pytest
+httpx               # An async-capable HTTP client, great for testing API endpoints
+faker               # Used to generate fake/random data (for seeding the DB)
+
+
+bcrypt==4.0.1
+pydantic[email]
+
+
+pydantic-settings
