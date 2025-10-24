@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const currentUserId = 1; 
+    
+    const ws = new WebSocket(`ws://127.0.0.1:8000/ws/realtime/${currentUserId}`);
+
     // ---  Emojis ---
     const emojis: string[] = ['🍀', '🍒', '💎', '💰', '🎰', '🔔'];
 
@@ -9,8 +13,100 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board') as HTMLDivElement;
     const gameResult = document.getElementById('game-result') as HTMLDivElement;
     const retryBtn = document.getElementById('retry-btn') as HTMLButtonElement;
+    
+    // Real-Time Chat/Broadcast Elements (You need to add these to index.html)
+    const chatInput = document.getElementById('chat-input') as HTMLInputElement | null;
+    const chatSendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement | null;
+    const chatLog = document.getElementById('chat-log') as HTMLDivElement | null;
+    
+    // --- WebSocket Event Handlers ---
+    ws.onopen = () => {
+        console.log(`WebSocket connected for user ${currentUserId}. Ready for real-time updates.`);
+        // Send initial connection status
+        sendMessage(`User ${currentUserId} has joined the game lobby.`, 'status');
+    };
 
-    // ---   ---
+    ws.onmessage = (event) => {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('Received Real-Time Update:', data);
+            
+            handleRealTimeMessage(data);
+
+        } catch (error) {
+            console.error('Failed to parse WebSocket message:', event.data, error);
+        }
+    };
+    
+    ws.onclose = () => {
+        console.log('WebSocket disconnected.');
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket Error:', error);
+    };
+
+    // --- Real-Time Message Handler ---
+    interface RealTimeData {
+        type: 'chat_message' | 'leaderboard_update' | 'status' | string;
+        sender_id?: number;
+        message?: string;
+
+    }
+
+    function handleRealTimeMessage(data: RealTimeData): void {
+        switch (data.type) {
+            case 'chat_message':
+                if (chatLog && data.message) {
+                    const prefix = data.sender_id === currentUserId ? 'You' : `User ${data.sender_id}`;
+                    displayChatMessage(`${prefix}: ${data.message}`);
+                }
+                break;
+            case 'leaderboard_update':
+                console.log('Leaderboard update received. Triggering UI refresh.');
+                displayChatMessage(`[System] Leaderboard updated!`, 'system');
+                break;
+            case 'status':
+                if (chatLog && data.message) {
+                    displayChatMessage(`[Status] ${data.message}`, 'system');
+                }
+                break;
+            default:
+                console.warn('Unknown real-time message type:', data.type);
+        }
+    }
+    
+    // --- WebSocket Helper ---
+    function sendMessage(message: string, type: 'chat_message' | 'status' = 'chat_message') {
+        if (ws.readyState === ws.OPEN) {
+            const payload = {
+                type: type,
+                sender_id: currentUserId,
+                message: message
+            };
+            ws.send(JSON.stringify(payload)); 
+        } else {
+            console.warn('WebSocket not open. Message not sent.');
+        }
+    }
+    
+    // --- Chat UI Helper (for demonstration) ---
+    function displayChatMessage(message: string, style: 'user' | 'system' | 'other' = 'other'): void {
+        if (!chatLog) return;
+        const p = document.createElement('p');
+        p.textContent = message;
+        // Simple styling based on message type (for demo)
+        if (style === 'system') {
+            p.style.color = '#e6c300'; // Gold color for system messages
+        } else if (style === 'user') {
+            p.style.color = '#28a745'; // Green for user's own messages (not used here, server does the echo)
+        }
+        chatLog.appendChild(p);
+        chatLog.scrollTop = chatLog.scrollHeight; // Scroll to bottom
+    }
+
+    // --- Game Logic Functions ---
+    
     function startGame(): void {
         startBtn.classList.add('hidden');
         gameContainer.classList.remove('hidden');
@@ -31,15 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             gameBoard.appendChild(figureButton);
         });
+        
+        // Broadcast that a new game has started
+        sendMessage(`User ${currentUserId} is feeling lucky and starting a new round!`, 'status');
     }
 
-    // ---  ---
     async function checkWin(selectedIndex: number): Promise<void> {
         
         const allFigures = document.querySelectorAll('.figure-btn') as NodeListOf<HTMLButtonElement>;
         allFigures.forEach(btn => btn.disabled = true);
 
         try {
+            // Note: This API call still requires an update on the backend to track the user ID 
+            // and perform the balance update, which would then trigger the Redis broadcast.
             const response = await fetch('/api/games/feel-lucky', {
                 method: 'POST',
                 headers: {
@@ -73,7 +173,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         retryBtn.classList.remove('hidden');
     }
+    
+    // --- Event Listeners ---
 
     startBtn.addEventListener('click', startGame);
     retryBtn.addEventListener('click', startGame);
+    
+    // Listen for the Enter key on the chat input
+    chatInput?.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            chatSendBtn?.click();
+        }
+    });
+    
+    // Listen for the send button click
+    chatSendBtn?.addEventListener('click', () => {
+        if (chatInput?.value.trim()) {
+            sendMessage(chatInput.value.trim(), 'chat_message');
+            // Show the user's message locally immediately
+            displayChatMessage(`You: ${chatInput.value.trim()}`, 'user');
+            chatInput.value = ''; // Clear input
+        }
+    });
 });
+

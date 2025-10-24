@@ -21,3 +21,4 @@ pydantic[email]
 
 
 pydantic-settings
+redis[asyncio]      # Async client for Redis Pub/Sub

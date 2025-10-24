@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app import init_db
 from app import services
 from app.settings import settings 
-from app.routers import feel_lucky_game, users 
+from app.routers import feel_lucky_game, users
+from app.routers import realtime
 from app.database import AsyncSessionLocal, get_db
 
 
@@ -38,6 +39,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(feel_lucky_game.router) 
 app.include_router(users.router) 
+app.include_router(realtime.router)
 
 @app.get("/")
 async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
