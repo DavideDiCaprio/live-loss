@@ -16,4 +16,5 @@ httpx               # An async-capable HTTP client, great for testing API endpoi
 faker               # Used to generate fake/random data (for seeding the DB)
 
 
-strawberry-fastapi  # For adding a GraphQL API endpoint (was imported in models.py)
+bcrypt==4.0.1
+pydantic[email]
