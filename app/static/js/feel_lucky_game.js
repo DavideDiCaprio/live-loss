@@ -8,17 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-// This file must be at /workspaces/live-loss/app/static/ts/game.ts
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. Define Emojis ---
+    // ---  Emojis ---
     const emojis = ['🍀', '🍒', '💎', '💰', '🎰', '🔔'];
-    // --- 2. Get DOM Elements (with types) ---
+    // ---  DOM Elements  ---
     const startBtn = document.getElementById('start-game-btn');
     const gameContainer = document.getElementById('game-container');
     const gameBoard = document.getElementById('game-board');
     const gameResult = document.getElementById('game-result');
     const retryBtn = document.getElementById('retry-btn');
-    // --- 3. Start Game Function ---
+    // ---   ---
     function startGame() {
         startBtn.classList.add('hidden');
         gameContainer.classList.remove('hidden');
@@ -36,13 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             gameBoard.appendChild(figureButton);
         });
     }
-    // --- 4. Check Win Function (Async API Call) ---
+    // ---  ---
     function checkWin(selectedIndex) {
         return __awaiter(this, void 0, void 0, function* () {
             const allFigures = document.querySelectorAll('.figure-btn');
             allFigures.forEach(btn => btn.disabled = true);
             try {
-                // This API path is still correct
                 const response = yield fetch('/api/games/feel-lucky', {
                     method: 'POST',
                     headers: {
@@ -73,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
             retryBtn.classList.remove('hidden');
         });
     }
-    // --- 5. Add Event Listeners ---
     startBtn.addEventListener('click', startGame);
     retryBtn.addEventListener('click', startGame);
 });
