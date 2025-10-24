@@ -1,12 +1,39 @@
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from faker import Faker
 import random
+import os
 import asyncio
 
-from . import crud, schemas, models
-from .models import UserType
+# Use absolute imports for consistency
+from app import crud, schemas, models
+from app.models import UserType
+from app.database import engine, Base, DATABASE_URL
 
 fake = Faker()
+
+async def run_app_setup(db_session_maker: async_sessionmaker[AsyncSession], num_users: int = 15):
+    """
+    Handles the complete database setup: cleanup, table creation, and initial seeding.
+    This logic is extracted from app/main.py's lifespan function.
+    """
+    db_file = "test.db"
+    # Logic to remove old database file (for local SQLite development)
+    if "sqlite" in DATABASE_URL and db_file in DATABASE_URL:
+        if os.path.exists(db_file):
+            print(f"Removing old database file: {db_file}")
+            os.remove(db_file)
+            
+    # Create tables
+    async with engine.begin() as conn:
+        print("Creating database tables...")
+        await conn.run_sync(Base.metadata.create_all)
+    
+    # Seed data
+    print("Starting database seeding...")
+    await create_random_users(db_session_maker, num_users=num_users)
+    
+    print("Database setup complete.")
+
 
 async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession], num_users: int = 10):
     """
@@ -41,7 +68,8 @@ async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession]
                 print(f"Created user: {db_user.nickname} ({db_user.email})")
 
             except Exception as e:
-                print(f"Error creating user {email}: {e}")
+                # Log the specific exception to help debugging if seeding fails
+                print(f"Error creating user {email}: {type(e).__name__} - {e}")
                 await session.rollback()
 
     print("--- Database seeding complete. ---")
