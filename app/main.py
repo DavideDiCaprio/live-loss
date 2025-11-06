@@ -16,7 +16,7 @@ from app import services
 from app.settings import settings 
 from app.routers import feel_lucky_game, users, realtime, auth
 from app.database import AsyncSessionLocal, get_db
-
+from app import crud 
 
 templates: Final[Jinja2Templates] = Jinja2Templates(directory="app/templates")
 """Jinja2 template engine instance configured to load templates from 'app/templates'."""

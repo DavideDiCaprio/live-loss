@@ -30,9 +30,59 @@ async def run_app_setup(db_session_maker: async_sessionmaker[AsyncSession], num_
     
     # Seed data
     print("Starting database seeding...")
+    
+    # 1. Create the default Admin User
+    await create_admin_user(db_session_maker)
+    
+    # 2. Seed random users
     await create_random_users(db_session_maker, num_users=num_users)
     
     print("Database setup complete.")
+
+
+async def create_admin_user(db_session_maker: async_sessionmaker[AsyncSession]):
+    """
+    Creates a default admin user if one does not already exist.
+    """
+    print("--- Checking for Admin user... ---")
+    admin_email = "admin"
+    admin_pass  = "admin" 
+    admin_nick  = "AdminUser"
+    
+    async with db_session_maker() as session:
+        # Check if admin user already exists
+        existing_admin = await crud.get_user_by_email(session, email=admin_email)
+        if existing_admin:
+            print(f"Admin user ({admin_email}) already exists. Skipping creation.")
+            return
+
+        # Create the admin user
+        print(f"Creating default admin user: {admin_email}")
+        try:
+            admin_in = schemas.UserCreate(
+                email=admin_email,
+                password=admin_pass,
+                nickname=admin_nick,
+                first_name="Admin",
+                last_name="User",
+                age=99
+            )
+            db_user = await crud.create_user(session, admin_in)
+            
+            # Update the user to be an Admin and give them a starting balance
+            admin_update = schemas.UserUpdate(
+                balance=9999.99,
+                user_type=models.UserType.ADMIN,
+                is_active=True # Ensure they are active
+            )
+            await crud.update_user(session, user_id=db_user.id, user_update=admin_update)
+            
+            print(f"Successfully created admin user: {db_user.nickname}")
+            print(f"Admin Login: {admin_email} / {admin_pass}")
+
+        except Exception as e:
+            print(f"CRITICAL: Error creating admin user {admin_email}: {type(e).__name__} - {e}")
+            await session.rollback()
 
 
 async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession], num_users: int = 10):
@@ -57,18 +107,21 @@ async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession]
             )
             
             try:
+                if await crud.get_user_by_email(session, email) or await crud.get_user_by_nickname(session, nickname):
+                    print(f"Skipping duplicate user: {nickname}")
+                    continue
+
                 db_user = await crud.create_user(session, user_in)
                 
                 update_data = schemas.UserUpdate(
                     balance=round(random.uniform(0.0, 5000.0), 2),
-                    user_type=random.choice(list(UserType))
+                    user_type=random.choice([ut for ut in UserType if ut != UserType.ADMIN]) # Don't create random admins
                 )
                 await crud.update_user(session, user_id=db_user.id, user_update=update_data)
                 
                 print(f"Created user: {db_user.nickname} ({db_user.email})")
 
             except Exception as e:
-                # Log the specific exception to help debugging if seeding fails
                 print(f"Error creating user {email}: {type(e).__name__} - {e}")
                 await session.rollback()
 

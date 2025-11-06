@@ -2,7 +2,7 @@ from fastapi import (
     APIRouter, 
     Depends, 
     Request, 
-    Response, 
+    # Response,  <-- We no longer need this injected in the login function
     status,
     Form
 )
@@ -34,7 +34,7 @@ async def get_login_page(request: Request, error: Optional[str] = None):
 @router.post("/login")
 async def login_for_user(
     request: Request, 
-    response: Response, 
+    # response: Response, <-- REMOVED from parameters
     db: AsyncSession = Depends(get_db),
     username: str = Form(...), # This is the email
     password: str = Form(...)
@@ -54,8 +54,12 @@ async def login_for_user(
         )
 
     # --- Login Successful ---
-    # Set a secure, HTTP-only cookie
-    response.set_cookie(
+    
+    # 1. Create the redirect response FIRST
+    redirect_response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+    # 2. Set the cookie on THAT response object
+    redirect_response.set_cookie(
         key="user_id",
         value=str(user.id),
         httponly=True,  # Makes it inaccessible to JavaScript
@@ -63,14 +67,19 @@ async def login_for_user(
         max_age=60*60*24 # Cookie lasts for 1 day
     )
     
-    # Redirect to the main game page
-    # We use 303_SEE_OTHER for POST-redirect-GET pattern
-    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+    # 3. Return the response that has the cookie
+    return redirect_response
 
 @router.get("/logout")
-async def logout(response: Response):
+async def logout(): # <-- REMOVED response from parameters
     """
     Logs the user out by deleting the cookie.
     """
-    response.delete_cookie(key="user_id")
-    return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    # 1. Create the redirect response
+    redirect_response = RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    
+    # 2. Delete the cookie on THAT response
+    redirect_response.delete_cookie(key="user_id")
+    
+    # 3. Return the response
+    return redirect_response

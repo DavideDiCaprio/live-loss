@@ -16,6 +16,7 @@ class UserType(str, enum.Enum):
 
     This enumeration is stored in the database as a string type.
     """
+    ADMIN = 'Admin'
     NORMAL = "Normal"
     PREMIUM = "Premium"
     PROFESSIONAL_GAMBLER = "Professional Gambler"
