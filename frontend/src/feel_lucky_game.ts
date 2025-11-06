@@ -1,6 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const currentUserId = 1; 
+    // Get the user ID from the <body> tag
+    const appBody = document.body;
+    const currentUserIdString = appBody.dataset.userId;
+
+    if (!currentUserIdString) {
+        // This should not happen if the user is logged in
+        console.error("Fatal: User ID not found on page. Redirecting to login.");
+        alert("Authentication error. Please log in again.");
+        window.location.href = "/login";
+        // Stop all script execution
+        throw new Error("User ID not found.");
+    }
+    
+    // Convert the ID from a string to a number
+    const currentUserId = parseInt(currentUserIdString, 10);
     
     const ws = new WebSocket(`ws://127.0.0.1:8000/ws/realtime/${currentUserId}`);
 

@@ -24,3 +24,4 @@ pydantic-settings
 redis[asyncio]      # Async client for Redis Pub/Sub
 
 passlib
+python-multipart    # For handling form data

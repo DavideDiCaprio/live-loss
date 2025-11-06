@@ -9,7 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 document.addEventListener('DOMContentLoaded', () => {
-    const currentUserId = 1;
+    // Get the user ID from the <body> tag
+    const appBody = document.body;
+    const currentUserIdString = appBody.dataset.userId;
+    if (!currentUserIdString) {
+        // This should not happen if the user is logged in
+        console.error("Fatal: User ID not found on page. Redirecting to login.");
+        alert("Authentication error. Please log in again.");
+        window.location.href = "/login";
+        // Stop all script execution
+        throw new Error("User ID not found.");
+    }
+    // Convert the ID from a string to a number
+    const currentUserId = parseInt(currentUserIdString, 10);
     const ws = new WebSocket(`ws://127.0.0.1:8000/ws/realtime/${currentUserId}`);
     // ---  Emojis ---
     const emojis = ['🍀', '🍒', '💎', '💰', '🎰', '🔔'];
@@ -19,17 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const gameResult = document.getElementById('game-result');
     const retryBtn = document.getElementById('retry-btn');
-    // Real-Time Chat/Broadcast Elements (You need to add these to index.html)
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
     const chatLog = document.getElementById('chat-log');
-    // --- ADD THIS FUNCTION ---
     /**
      * Finds the current user on the leaderboard and applies a highlight style.
      */
     function highlightCurrentUser() {
         try {
-            // Find the <li> element that has the matching data-userid
             const userRow = document.querySelector(`.leaderboard li[data-userid="${currentUserId}"]`);
             if (userRow) {
                 userRow.classList.add('is-current-user');
@@ -106,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         const p = document.createElement('p');
         p.textContent = message;
-        // Simple styling based on message type (for demo)
         if (style === 'system') {
             p.style.color = '#e6c300'; // Gold color for system messages
         }
@@ -141,14 +149,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const allFigures = document.querySelectorAll('.figure-btn');
             allFigures.forEach(btn => btn.disabled = true);
             try {
-                // Note: This API call still requires an update on the backend to track the user ID 
-                // and perform the balance update, which would then trigger the Redis broadcast.
                 const response = yield fetch('/api/games/feel-lucky', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    // UPDATED: Send the choice AND the currentUserId
                     body: JSON.stringify({
                         choice: selectedIndex,
                         user_id: currentUserId
@@ -161,12 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.result === 'win') {
                     gameResult.textContent = 'Wow, great!';
                     gameResult.classList.add('win-message');
-                    // --- ADDED: Reload the page to show new leaderboard balance ---
                     // We wait 1.5 seconds so the user can read the win message
                     setTimeout(() => {
                         location.reload();
                     }, 1500);
-                    // --- End of added logic ---
                 }
                 else {
                     gameResult.textContent = 'Not this time...';

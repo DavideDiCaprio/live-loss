@@ -1,7 +1,10 @@
 """
 Main entry point and configuration for the application.
 """
-from fastapi import FastAPI, Request, Depends
+from fastapi import Cookie, Response
+from fastapi.responses import RedirectResponse
+from typing import Optional
+from fastapi import FastAPI, Request, Depends, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
@@ -11,8 +14,7 @@ from typing import Final, AsyncGenerator
 from app import init_db
 from app import services
 from app.settings import settings 
-from app.routers import feel_lucky_game, users
-from app.routers import realtime
+from app.routers import feel_lucky_game, users, realtime, auth
 from app.database import AsyncSessionLocal, get_db
 
 
@@ -59,14 +61,19 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 """Mounts the 'app/static' directory under the /static URL path for serving static assets."""
 
 # Include API Routers
+app.include_router(auth.router)
 app.include_router(feel_lucky_game.router) 
 app.include_router(users.router) 
 app.include_router(realtime.router)
 """Includes the dedicated routers for the game, user management, and real-time features."""
 
-
-@app.get("/")
-async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
+@app.get("/") 
+async def read_root(
+    request: Request, 
+    response: Response,
+    db: AsyncSession = Depends(get_db),
+    user_id: Optional[str] = Cookie(None)
+):
     """
     Renders the welcome page and fetches the user leaderboard.
 
@@ -77,9 +84,26 @@ async def read_root(request: Request, db: AsyncSession = Depends(get_db)):
     Returns:
         TemplateResponse: The rendered **index.html** page with the user leaderboard.
     """
+
+    # --- ADD THIS AUTHENTICATION CHECK ---
+    if user_id is None:
+        # No cookie, redirect to login page
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        current_user = await crud.get_user(db, user_id=int(user_id))
+    except (ValueError, TypeError):
+        current_user = None
+
+    if current_user is None:
+        # Invalid or expired cookie
+        response.delete_cookie(key="user_id")
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    # --- END OF AUTH CHECK ---
+
     sorted_users = await services.get_sorted_leaderboard_users(db)
     
     return templates.TemplateResponse(
         "index.html", 
-        {"request": request, "users": sorted_users}
+        {"request": request, "users": sorted_users, "current_user": current_user}
     )
