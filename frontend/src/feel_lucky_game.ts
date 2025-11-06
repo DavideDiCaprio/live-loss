@@ -13,11 +13,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board') as HTMLDivElement;
     const gameResult = document.getElementById('game-result') as HTMLDivElement;
     const retryBtn = document.getElementById('retry-btn') as HTMLButtonElement;
-    
-    // Real-Time Chat/Broadcast Elements (You need to add these to index.html)
     const chatInput = document.getElementById('chat-input') as HTMLInputElement | null;
     const chatSendBtn = document.getElementById('chat-send-btn') as HTMLButtonElement | null;
     const chatLog = document.getElementById('chat-log') as HTMLDivElement | null;
+
+    /**
+     * Finds the current user on the leaderboard and applies a highlight style.
+     */
+    function highlightCurrentUser(): void {
+        try {
+            const userRow = document.querySelector(`.leaderboard li[data-userid="${currentUserId}"]`);
+            
+            if (userRow) {
+                userRow.classList.add('is-current-user');
+            } else {
+                console.warn(`Could not find current user (ID: ${currentUserId}) on the leaderboard.`);
+            }
+        } catch (error) {
+            console.error('Error highlighting user:', error);
+        }
+    }
     
     // --- WebSocket Event Handlers ---
     ws.onopen = () => {
@@ -45,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ws.onerror = (error) => {
         console.error('WebSocket Error:', error);
     };
+
+    highlightCurrentUser();
 
     // --- Real-Time Message Handler ---
     interface RealTimeData {
@@ -95,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!chatLog) return;
         const p = document.createElement('p');
         p.textContent = message;
-        // Simple styling based on message type (for demo)
         if (style === 'system') {
             p.style.color = '#e6c300'; // Gold color for system messages
         } else if (style === 'user') {
@@ -132,20 +148,21 @@ document.addEventListener('DOMContentLoaded', () => {
         sendMessage(`User ${currentUserId} is feeling lucky and starting a new round!`, 'status');
     }
 
-    async function checkWin(selectedIndex: number): Promise<void> {
+async function checkWin(selectedIndex: number): Promise<void> {
         
         const allFigures = document.querySelectorAll('.figure-btn') as NodeListOf<HTMLButtonElement>;
         allFigures.forEach(btn => btn.disabled = true);
 
         try {
-            // Note: This API call still requires an update on the backend to track the user ID 
-            // and perform the balance update, which would then trigger the Redis broadcast.
             const response = await fetch('/api/games/feel-lucky', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ choice: selectedIndex }),
+                body: JSON.stringify({ 
+                    choice: selectedIndex,
+                    user_id: currentUserId 
+                }),
             });
 
             if (!response.ok) {
@@ -157,6 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.result === 'win') {
                 gameResult.textContent = 'Wow, great!';
                 gameResult.classList.add('win-message');
+                
+                // We wait 1.5 seconds so the user can read the win message
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+
             } else {
                 gameResult.textContent = 'Not this time...';
                 gameResult.classList.add('lose-message');
@@ -171,7 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gameResult.classList.add('lose-message');
         }
 
-        retryBtn.classList.remove('hidden');
+        // Only show retry button if the game didn't win (since win reloads)
+        if (gameResult.classList.contains('lose-message')) {
+            retryBtn.classList.remove('hidden');
+        }
     }
     
     // --- Event Listeners ---

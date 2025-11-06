@@ -176,6 +176,13 @@
         .lose-message { color: #dc3545; }
         .hidden { display: none; }
 
+        .leaderboard li.is-current-user {
+            background-color: #5a4d1d;
+            border-left: 4px solid #e6c300;
+            padding-left: 10px;
+            font-size: 1.05em; 
+        }
+
     </style>
 </head>
 <body>
@@ -184,7 +191,7 @@
         <h2>Leaderboard</h2>
         <ul>
             {% for user in users %}
-            <li>
+            <li data-userid="{{ user.id }}>
                 <span class="nickname" title="{{ user.nickname }}">{{ user.nickname }}</span>
                 <span class="balance">${{ "%.2f"|format(user.balance) }}</span>
                 <span class="type" title="{{ user.user_type.value }}">{{ user.user_type.value }}</span>
