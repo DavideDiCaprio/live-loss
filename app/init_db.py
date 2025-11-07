@@ -4,7 +4,6 @@ import random
 import os
 import asyncio
 
-# Use absolute imports for consistency
 from app import crud, schemas, models
 from app.models import UserType
 from app.database import engine, Base, DATABASE_URL
@@ -100,10 +99,7 @@ async def create_random_users(db_session_maker: async_sessionmaker[AsyncSession]
             user_in = schemas.UserCreate(
                 email=email,
                 password=password,
-                nickname=nickname,
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                age=random.randint(18, 70)
+                nickname=nickname
             )
             
             try:

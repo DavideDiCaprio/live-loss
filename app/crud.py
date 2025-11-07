@@ -21,9 +21,6 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate) -> models.User
         email=user.email,
         hashed_password=hashed_password,
         nickname=user.nickname,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        age=user.age,
         balance=0.0,
         user_type=models.UserType.NORMAL 
     )

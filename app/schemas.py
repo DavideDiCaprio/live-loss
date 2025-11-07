@@ -16,7 +16,6 @@ from pydantic import (
     field_validator
 )
 
-# Assuming '.models' contains the definition for UserType
 from .models import UserType 
 
 # --- User Schemas ---
@@ -34,13 +33,6 @@ class UserBase(BaseModel):
         min_length=3,
         max_length=50,
         description="The user's unique nickname."
-    )
-    first_name: Optional[str] = Field(None, description="The user's first name.")
-    last_name: Optional[str] = Field(None, description="The user's last name.")
-    age: Optional[int] = Field(
-        None,
-        ge=18,
-        description="The user's age. Must be 18 or older."
     )
 
 
@@ -100,19 +92,6 @@ class UserUpdate(BaseModel):
         min_length=3,
         max_length=50,
         description="The user's new nickname."
-    )
-    first_name: Optional[str] = Field(
-        None,
-        description="The user's new first name."
-    )
-    last_name: Optional[str] = Field(
-        None,
-        description="The user's new last name."
-    )
-    age: Optional[int] = Field(
-        None,
-        ge=18,
-        description="The user's new age. Must be 18 or older."
     )
     balance: Optional[float] = Field(
         None,

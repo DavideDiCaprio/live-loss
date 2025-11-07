@@ -18,7 +18,6 @@ class UserType(str, enum.Enum):
     """
     ADMIN = 'Admin'
     NORMAL = "Normal"
-    PREMIUM = "Premium"
     PROFESSIONAL_GAMBLER = "Professional Gambler"
 
 # --- ORM Models ---
@@ -34,15 +33,6 @@ class User(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     """The unique, auto-incrementing primary key ID for the user."""
-    
-    # --- Optional/Personal Fields ---
-    
-    first_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    """The user's first name."""
-    last_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    """The user's last name."""
-    age: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    """The user's age."""
     
     # --- Required/Unique Fields ---
     

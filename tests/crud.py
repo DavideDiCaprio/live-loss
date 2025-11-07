@@ -20,10 +20,7 @@ async def test_create_user(db_session: AsyncSession):
     user_in = schemas.UserCreate(
         email=email,
         password=password,
-        nickname=nickname,
-        first_name="Test",
-        last_name="User",
-        age=30
+        nickname=nickname
     )
     
     db_user = await crud.create_user(db_session, user=user_in)
@@ -32,8 +29,6 @@ async def test_create_user(db_session: AsyncSession):
     assert db_user.id is not None
     assert db_user.email == email
     assert db_user.nickname == nickname
-    assert db_user.first_name == "Test"
-    assert db_user.age == 30
     
     # Verify default values
     assert db_user.balance == 0.0
