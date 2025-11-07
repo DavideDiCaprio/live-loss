@@ -96,6 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'leaderboard_update':
                 console.log('Leaderboard update received. Triggering UI refresh.');
                 displayChatMessage(`[System] Leaderboard updated!`, 'system');
+
+                // Reload the page to get the new leaderboard state
+                // We add a small delay so the user can read the chat message
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+                
                 break;
             case 'status':
                 if (chatLog && data.message) {

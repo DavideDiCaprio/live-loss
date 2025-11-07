@@ -1,6 +1,7 @@
 """
 Main entry point and configuration for the application.
 """
+import asyncio
 from fastapi import Cookie, Response
 from fastapi.responses import RedirectResponse
 from typing import Optional
@@ -16,7 +17,10 @@ from app import services
 from app.settings import settings 
 from app.routers import feel_lucky_game, users, realtime, auth
 from app.database import AsyncSessionLocal, get_db
-from app import crud 
+from app import crud
+
+from app.websockets import manager
+from app import bot
 
 templates: Final[Jinja2Templates] = Jinja2Templates(directory="app/templates")
 """Jinja2 template engine instance configured to load templates from 'app/templates'."""
@@ -39,7 +43,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     print("--- Starting Application Setup ---")
     
     # Calls the extracted setup function (database creation and seeding)
-    await init_db.run_app_setup(AsyncSessionLocal, num_users=15)
+    await init_db.run_app_setup(AsyncSessionLocal, num_users=10)
+
+    print("--- Starting Bot Worker Task ---")
+    # Create the background task for the bot worker
+    # We pass it the session *maker* and the websocket manager
+    bot_task = asyncio.create_task(
+        bot.run_bot(AsyncSessionLocal, manager)
+    )
         
     print("--- Application startup complete. ---")
     yield
